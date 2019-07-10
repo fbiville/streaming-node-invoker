@@ -1,0 +1,15 @@
+{
+  "name": "streaming-node-invoker",
+  "version": "0.0.1",
+  "description": "riff invoker for Node functions",
+  "main": "server.js",
+  "repository": "git@github.com:fbiville/streaming-node-invoker.git",
+  "author": "Florent Biville <fbiville@pivotal.io>",
+  "license": "Apache-2.0",
+  "private": false,
+  "dependencies": {
+    "google-protobuf": "3.8.0",
+    "grpc": "^1.22.0",
+    "negotiator": "^0.6.2"
+  }
+}
