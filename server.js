@@ -1,55 +1,30 @@
 const {TextEncoder, TextDecoder} = require('util');
+const Stream = require('stream');
 const services = require('./codegen/proto/riff-rpc_grpc_pb');
+const samples = require('./sample-functions');
+const OutputMarshaller = require('./output-marshaller');
 const messages = require('./codegen/proto/riff-rpc_pb');
 const mediaTypeNegotiator = require('negotiator/lib/mediaType');
+const InputUnmarshaller = require('./input-unmarshaller');
 const grpc = require('grpc');
+const debug = require('debug')('node-invoker:server');
 
-const hardcodedSquareFunction = (number) => {
-	return number*number;
-};
 
 const invoke = (call) => {
-	console.log('INVOKED');
-	let expectedOutputContentTypes;
-	call.on('data', (/*InputSignal*/ inputSignal) => {
-		if (inputSignal.hasStart()) {
-			const startSignal = inputSignal.getStart();
-			expectedOutputContentTypes = startSignal.getExpectedcontenttypesList();
-		} else if (inputSignal.hasData()) {
-			const dataSignal = inputSignal.getData();
-			const payload = dataSignal.getPayload();
-			const contentType = dataSignal.getContenttype();
-			if (contentType == 'text/plain') {
-				const decoder = new TextDecoder('utf8');
-				const input = decoder.decode(payload);
-				const rawOutput = hardcodedSquareFunction(input);
-				const outputContentType = expectedOutputContentTypes[0];
-				if (outputContentType == 'text/plain') {
-					const encoder = new TextEncoder('utf8');
-					const output = '' + rawOutput;
-					const outputFrame = new proto.streaming.OutputFrame();
-					outputFrame.setPayload(encoder.encode(output));
-					outputFrame.setContenttype(outputContentType);
-					const outputSignal = new proto.streaming.OutputSignal();
-					outputSignal.setData(outputFrame);
-					call.write(outputSignal);
-				} else {
-					throw `unrecognized output content-type ${contentType}`;
-				}
-			} else {
-				throw `unrecognized input content-type ${contentType}`;
-			}
-		} else {
-			throw `unrecognized signal ${inputSignal}`;
-		}
-	});
-	/*  
-	 * 1. extract START signal
-	 * 2. decode inputs
-	 * 3. call function
-	 * 4. encode outputs (based on 1.)
-	 * 5. pass to callback
-	 */
+	debug('Invocation started');
+	const inputUnmarshaller = new InputUnmarshaller({objectMode: true});
+	const outputMarshaller = new OutputMarshaller(inputUnmarshaller, {objectMode: true});
+
+	// streaming function:
+	outputMarshaller.pipe(call);
+	samples.streamingFunction(call.pipe(inputUnmarshaller), outputMarshaller);
+	// non-streaming function:
+	// const userFn = new Stream.Transform({objectMode: true});
+	// userFn._transform = (input, _, cb) => {
+	// 	userFn.push(samples.nonStreamingFunction(input));
+	// 	cb();
+	// };
+	// call.pipe(inputUnmarshaller).pipe(userFn).pipe(outputMarshaller).pipe(call);
 };
 
 const main = () => {
