@@ -12,19 +12,22 @@ const debug = require('debug')('node-invoker:server');
 
 const invoke = (call) => {
 	debug('Invocation started');
-	const inputUnmarshaller = new InputUnmarshaller({objectMode: true});
-	const outputMarshaller = new OutputMarshaller(inputUnmarshaller, {objectMode: true});
+	const userFunction = samples.streamingMultiIoFunction;
 
-	// streaming function:
+	const parameterCount = userFunction.length;
+	debug(`Function accepts ${parameterCount} parameter(s)`);
+	const outputMarshaller = new OutputMarshaller({objectMode: true});
+	const inputUnmarshaller = new InputUnmarshaller(parameterCount, outputMarshaller, {objectMode: true});
+
+	userFunction.apply(null, inputUnmarshaller.parameterStreams);
+	call.pipe(inputUnmarshaller);
 	outputMarshaller.pipe(call);
-	samples.streamingFunction(call.pipe(inputUnmarshaller), outputMarshaller);
-	// non-streaming function:
-	// const userFn = new Stream.Transform({objectMode: true});
-	// userFn._transform = (input, _, cb) => {
-	// 	userFn.push(samples.nonStreamingFunction(input));
-	// 	cb();
-	// };
-	// call.pipe(inputUnmarshaller).pipe(userFn).pipe(outputMarshaller).pipe(call);
+
+	call.on('end', () => {
+		debug('Cleaning up before next call');
+		inputUnmarshaller.destroy();
+		outputMarshaller.destroy();
+	});
 };
 
 const main = () => {

@@ -11,8 +11,8 @@
 
 ### Full streaming setup
 
-1. Set up Kafka onto your K8s cluster.
-1. Set up Liiklus.
+1. Set up Kafka onto your K8s cluster (apply `kafka-broker.yaml` defined in https://github.com/projectriff/streaming-processor).
+1. Set up Liiklus (apply `liiklus.yaml` defined in https://github.com/projectriff/streaming-processor).
 1. Set up the Kafka Gateway by following these [instructions](https://github.com/projectriff/kafka-gateway).
 
 ## End-to-end run
