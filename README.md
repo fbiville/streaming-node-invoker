@@ -18,7 +18,7 @@
 ## End-to-end run
 
 1. Run the Liiklus producer and the consumer with this [project](https://github.com/projectriff-samples/liiklus-client).
-1. Run this invoker: `yarn start`
+1. Run this invoker: `FUNCTION_URI='./samples/repeater' yarn start`
 1. Run the [processor](https://github.com/projectriff/streaming-processor) with the appropriate parameters.
 1. Start sending data via the Liiklus producer.
 
@@ -27,5 +27,5 @@
 Execute the following:
 
 ```shell
- $ DEBUG='node-invoker:*' yarn start
+ $ FUNCTION_URI='./samples/repeater' DEBUG='node-invoker:*' yarn start
 ```

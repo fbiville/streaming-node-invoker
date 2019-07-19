@@ -1,7 +1,6 @@
 const {TextEncoder, TextDecoder} = require('util');
 const Stream = require('stream');
 const services = require('./codegen/proto/riff-rpc_grpc_pb');
-const samples = require('./sample-functions');
 const OutputMarshaller = require('./lib/output-marshaller');
 const messages = require('./codegen/proto/riff-rpc_pb');
 const mediaTypeNegotiator = require('negotiator/lib/mediaType');
@@ -9,10 +8,17 @@ const RiffFacade = require('./lib/riff-facade');
 const grpc = require('grpc');
 const debug = require('debug')('node-invoker:server');
 
+const userFunction = (fn => {
+	debug(fn.toString());
+    if (fn.__esModule && typeof fn.default === 'function') {
+        // transpiled ES Module interop
+        return fn.default;
+    }
+    return fn;
+})(require(process.env.FUNCTION_URI));
 
 const invoke = (call) => {
 	debug('New invocation started');
-	const userFunction = samples.streamingMultiIoFunction;
 	const riffFacade = new RiffFacade(userFunction, call, {objectMode: true});
 	call.pipe(riffFacade);
 
