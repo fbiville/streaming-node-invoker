@@ -11,7 +11,7 @@ const debug = require('debug')('node-invoker:server');
 
 
 const invoke = (call) => {
-	debug('Invocation started');
+	debug('New invocation started');
 	const userFunction = samples.streamingMultiIoFunction;
 	const riffFacade = new RiffFacade(userFunction, call, {objectMode: true});
 	call.pipe(riffFacade);
@@ -27,6 +27,7 @@ const main = () => {
 	server.addService(services.RiffService, {invoke: invoke});
 	server.bind('0.0.0.0:50051', grpc.ServerCredentials.createInsecure());
 	server.start();
+	debug('Ready to process signals');
 };
 
 main();
