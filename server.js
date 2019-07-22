@@ -13,6 +13,7 @@ const userFunction = (fn => {
 	debug(fn.toString());
     if (fn.__esModule && typeof fn.default === 'function') {
         // transpiled ES Module interop
+        // see https://2ality.com/2017/01/babel-esm-spec-mode.html
         return fn.default;
     }
     return fn;
