@@ -8,6 +8,7 @@ const RiffFacade = require('./lib/riff-facade');
 const grpc = require('grpc');
 const debug = require('debug')('node-invoker:server');
 
+const PORT = process.env.HTTP_PORT || process.env.PORT || '8081';
 const userFunction = (fn => {
 	debug(fn.toString());
     if (fn.__esModule && typeof fn.default === 'function') {
@@ -31,7 +32,7 @@ const invoke = (call) => {
 const main = () => {
 	const server = new grpc.Server();
 	server.addService(services.RiffService, {invoke: invoke});
-	server.bind('0.0.0.0:50051', grpc.ServerCredentials.createInsecure());
+	server.bind(`0.0.0.0:${PORT}`, grpc.ServerCredentials.createInsecure());
 	server.start();
 	debug('Ready to process signals');
 };
