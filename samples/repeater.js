@@ -1,6 +1,6 @@
 const debug = require('debug')('node-invoker:repeater-sample');
 
-module.exports = 
+module.exports =
 	(numbers /* Readable */, letters /* Readable */, squares /* Writable */, repeated_letters /* Writable */) => {
 		debug('Multi I/O streaming function invocation started');
 		numbers.on('data', (number) => {

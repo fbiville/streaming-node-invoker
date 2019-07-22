@@ -7,11 +7,23 @@
   "author": "Florent Biville <fbiville@pivotal.io>",
   "license": "Apache-2.0",
   "private": false,
+  "scripts": {
+    "eslint": "eslint"
+  },
   "dependencies": {
     "debug": "^4.1.1",
     "google-protobuf": "3.8.0",
     "grpc": "^1.22.0",
     "negotiator": "^0.6.2",
     "querystring": "^0.2.0"
-  }
+  },
+  "devDependencies": {
+    "eslint": "^6.1.0"
+  },
+  "files": [
+    "codegen/**/*.js",
+    "lib/**/*.js",
+    "proto/**/*.js",
+    "server.js"
+  ]
 }
