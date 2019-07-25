@@ -1,7 +1,7 @@
 const services = require('./codegen/proto/riff-rpc_grpc_pb');
 const RiffFacade = require('./lib/riff-facade');
+const logger = require('util').debuglog('riff');
 const grpc = require('grpc');
-const debug = require('debug')('node-invoker:server');
 
 const userFunctionUri = process.env.FUNCTION_URI;
 if (typeof userFunctionUri === 'undefined' || userFunctionUri === '') {
@@ -18,14 +18,9 @@ const userFunction = (fn => {
 })(require(userFunctionUri));
 
 const invoke = (call) => {
-    debug('New invocation started');
+    logger('New invocation started');
     const riffFacade = new RiffFacade(userFunction, call, {objectMode: true});
     call.pipe(riffFacade);
-
-    call.on('end', () => {
-        debug('Cleaning up before next call');
-        riffFacade.destroy();
-    });
 };
 
 const main = () => {
@@ -33,7 +28,7 @@ const main = () => {
     server.addService(services.RiffService, {invoke: invoke});
     server.bind(`0.0.0.0:${port}`, grpc.ServerCredentials.createInsecure());
     server.start();
-    debug('Ready to process signals');
+    logger('Ready to process signals');
 };
 
 main();

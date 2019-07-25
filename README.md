@@ -33,7 +33,7 @@ Make sure to install the EditorConfig plugin in your editing environment.
 Execute the following:
 
 ```shell
- $ FUNCTION_URI='./samples/repeater' DEBUG='node-invoker:*' yarn start
+ $ FUNCTION_URI='./samples/repeater' NODE_DEBUG='riff' yarn start
 ```
 
 ## Linting

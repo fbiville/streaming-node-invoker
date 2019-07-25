@@ -11,7 +11,6 @@
     "eslint": "eslint"
   },
   "dependencies": {
-    "debug": "^4.1.1",
     "google-protobuf": "3.8.0",
     "grpc": "^1.22.0",
     "negotiator": "^0.6.2",
