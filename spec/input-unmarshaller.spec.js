@@ -62,7 +62,8 @@ describe('input unmarshaller =>', () => {
             done(new Error(`should not consume any elements`));
         });
         unmarshaller.on('error', (err) => {
-            expect(err.message).toEqual('unsupported input #0\'s content-type application/x-doom');
+            expect(err.type).toEqual('error-streaming-input-content-type-unsupported');
+            expect(err.cause).toEqual('unsupported input #0\'s content-type application/x-doom');
             done();
         });
 

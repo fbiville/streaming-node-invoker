@@ -36,4 +36,24 @@ describe('output marshaller =>', () => {
 
         outputPayloadSource.pipe(marshaller);
     });
+
+    it('fails to instantiate if the output index is invalid', () => {
+        try {
+            new OutputMarshaller(-1, 'text/plain', {});
+            fail('instantiation should fail');
+        } catch(err) {
+            expect(err.type).toEqual('error-streaming-output-index-invalid');
+            expect(err.cause).toEqual('invalid output index: -1');
+        }
+    });
+
+    it('fails to instantiate if the content type is not supported', () => {
+        try {
+            new OutputMarshaller(0, 'text/nope', {});
+            fail('instantiation should fail');
+        } catch(err) {
+            expect(err.type).toEqual('error-streaming-output-content-type-unsupported');
+            expect(err.cause).toEqual('unrecognized output #0\'s content-type text/nope');
+        }
+    });
 });

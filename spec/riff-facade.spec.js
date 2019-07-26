@@ -75,7 +75,8 @@ describe('riff facade =>', () => {
 
         it('emits an error', (done) => {
             riffFacade.on('error', (err) => {
-                expect(err.message).toEqual('invalid input type [object String]');
+                expect(err.type).toEqual('error-streaming-input-type-invalid');
+                expect(err.cause).toEqual('invalid input type [object String]');
                 done();
             });
             fixedSource.pipe(riffFacade);
@@ -89,7 +90,8 @@ describe('riff facade =>', () => {
 
         it('emits an error', (done) => {
             riffFacade.on('error', (err) => {
-                expect(err.message).toEqual('input is neither a start nor a data signal');
+                expect(err.type).toEqual('error-streaming-input-type-unsupported');
+                expect(err.cause).toEqual('input is neither a start nor a data signal');
                 done();
             });
             fixedSource.pipe(riffFacade);
@@ -109,30 +111,11 @@ describe('riff facade =>', () => {
                 done(new Error('should not receive any data'));
             });
             riffFacade.on('error', (err) => {
-                expect(err.message).toEqual(
+                expect(err.type).toEqual('error-streaming-too-many-starts');
+                expect(err.cause).toEqual(
                     'start signal has already been received. ' +
-                    'Rejecting new start signal with content types [application/x-doom]');
-                done();
-            });
-            fixedSource.pipe(riffFacade);
-        })
-    });
-
-    describe('with no start signal to start with =>', () => {
-        beforeEach(() => {
-            fixedSource = newFixedSource([newInputSignal(
-                newInputFrame(42, 'application/x-doom', '??'))
-            ]);
-        });
-
-        it('emits an error', (done) => {
-            destinationStream.on('data', () => {
-                done(new Error('should not receive any data'));
-            });
-            riffFacade.on('error', (err) => {
-                expect(err.message).toEqual(
-                    'start signal has not been received or processed yet. ' +
-                    'Rejecting data signal');
+                    'Rejecting new start signal with content types [application/x-doom]'
+                );
                 done();
             });
             fixedSource.pipe(riffFacade);
@@ -151,8 +134,33 @@ describe('riff facade =>', () => {
                 done(new Error('should not receive any data'));
             });
             riffFacade.on('error', (err) => {
-                expect(err.message).toEqual(
-                    'invalid output count 3: function has only 2 parameter(s)');
+                expect(err.type).toEqual('error-streaming-invalid-output-count');
+                expect(err.cause).toEqual(
+                    'invalid output count 3: function has only 2 parameter(s)'
+                );
+                done();
+            });
+            fixedSource.pipe(riffFacade);
+        })
+    });
+
+    describe('with no start signal to start with =>', () => {
+        beforeEach(() => {
+            fixedSource = newFixedSource([newInputSignal(
+                newInputFrame(42, 'application/x-doom', '??'))
+            ]);
+        });
+
+        it('emits an error', (done) => {
+            destinationStream.on('data', () => {
+                done(new Error('should not receive any data'));
+            });
+            riffFacade.on('error', (err) => {
+                expect(err.type).toEqual('error-streaming-missing-start');
+                expect(err.cause).toEqual(
+                    'start signal has not been received or processed yet. ' +
+                    'Rejecting data signal'
+                );
                 done();
             });
             fixedSource.pipe(riffFacade);
