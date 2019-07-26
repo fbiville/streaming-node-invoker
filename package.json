@@ -8,7 +8,9 @@
   "license": "Apache-2.0",
   "private": false,
   "scripts": {
-    "eslint": "eslint"
+    "test": "yarn run eslint . && yarn run jasmine",
+    "eslint": "eslint",
+    "jasmine": "jasmine"
   },
   "dependencies": {
     "google-protobuf": "3.8.0",
@@ -17,7 +19,9 @@
     "querystring": "^0.2.0"
   },
   "devDependencies": {
-    "eslint": "^6.1.0"
+    "eslint": "^6.1.0",
+    "eslint-plugin-jasmine": "^2.10.1",
+    "jasmine": "^3.4.0"
   },
   "files": [
     "codegen/**/*.js",
