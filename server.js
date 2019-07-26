@@ -26,9 +26,18 @@ const invoke = (call) => {
 const main = () => {
     const server = new grpc.Server();
     server.addService(services.RiffService, {invoke: invoke});
+
+    const shutdown = () => {
+        logger('Graceful shutdown started');
+        server.tryShutdown(() => logger('Graceful shutdown completed'));
+    };
+    process.on('SIGTERM', shutdown);
+    process.on('SIGINT', shutdown);
+
     server.bind(`0.0.0.0:${port}`, grpc.ServerCredentials.createInsecure());
     server.start();
     logger('Ready to process signals');
+
 };
 
 main();
