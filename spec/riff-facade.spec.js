@@ -68,6 +68,31 @@ describe('riff facade =>', () => {
         });
     });
 
+    describe('with a closed input stream =>', () => {
+        beforeEach(() => {
+            fixedSource = newFixedSource([
+                newStartSignal(newStartFrame([]))
+            ]);
+        });
+
+        // when the source ends (such as internal this.push(null) call), the piped destination will have its 'end' method called
+        // see https://nodejs.org/api/stream.html#stream_readable_pipe_destination_options
+        it('will end input streams when the piped source ends', (done) => {
+            const userFunction = (inputStream) => {
+                inputStream.on('end', () => {
+                    done();
+                })
+            };
+
+            riffFacade = new RiffFacade(userFunction, destinationStream, {objectMode: true});
+            fixedSource.pipe(riffFacade);
+            setTimeout(() => {
+                fixedSource.end();
+            }, 100);
+
+        })
+    });
+
     describe('with badly-typed inputs =>', () => {
         beforeEach(() => {
             fixedSource = newFixedSource(["not a signal"]);
