@@ -9,8 +9,8 @@ Make sure to install the EditorConfig plugin in your editing environment.
 ### Proto generation
 
 ```shell
- $ npm install -g grpc-tools
- $ ./generate.sh
+ $ yarn # to install the dependencies if not done already
+ $ yarn generate-proto
 ```
 
 ### Full streaming setup
