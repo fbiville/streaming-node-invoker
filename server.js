@@ -1,5 +1,5 @@
 const services = require('./codegen/proto/riff-rpc_grpc_pb');
-const RiffFacade = require('./lib/riff-facade');
+const RiffPipeline = require('./lib/riff-pipeline');
 const logger = require('util').debuglog('riff');
 const grpc = require('grpc');
 
@@ -19,8 +19,8 @@ const userFunction = (fn => {
 
 const invoke = (call) => {
     logger('New invocation started');
-    const riffFacade = new RiffFacade(userFunction, call, {objectMode: true});
-    call.pipe(riffFacade);
+    const riffPipeline = new RiffPipeline(userFunction, call, {objectMode: true});
+    call.pipe(riffPipeline);
 };
 
 const main = () => {

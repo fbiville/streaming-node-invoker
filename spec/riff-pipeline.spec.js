@@ -9,25 +9,25 @@ const {
     newStartFrame,
     newStartSignal
 } = require('./helpers/factories');
-const RiffFacade = require('../lib/riff-facade');
+const RiffPipeline = require('../lib/riff-pipeline');
 
-describe('riff facade =>', () => {
+describe('riff pipeline =>', () => {
 
     const userFunction = (inputStream, outputStream) => {
         inputStream.pipe(newMappingTransform((arg) => arg + 42)).pipe(outputStream);
     };
     let destinationStream;
-    let riffFacade;
+    let riffPipeline;
     let fixedSource;
 
     beforeEach(() => {
         destinationStream = new PassThrough({objectMode: true});
-        riffFacade = new RiffFacade(userFunction, destinationStream, {objectMode: true});
+        riffPipeline = new RiffPipeline(userFunction, destinationStream, {objectMode: true});
     });
 
     afterEach(() => {
         fixedSource.destroy();
-        riffFacade.destroy();
+        riffPipeline.destroy();
         destinationStream.destroy();
     });
 
@@ -44,7 +44,7 @@ describe('riff facade =>', () => {
         });
 
         it('invokes the function and send the outputs', (done) => {
-            riffFacade.on('error', (err) => {
+            riffPipeline.on('error', (err) => {
                 done(err);
             });
             let dataReceived = false;
@@ -64,7 +64,7 @@ describe('riff facade =>', () => {
             destinationStream.on('finish', () => {
                 done();
             });
-            fixedSource.pipe(riffFacade);
+            fixedSource.pipe(riffPipeline);
         });
     });
 
@@ -84,8 +84,8 @@ describe('riff facade =>', () => {
                 })
             };
 
-            riffFacade = new RiffFacade(userFunction, destinationStream, {objectMode: true});
-            fixedSource.pipe(riffFacade);
+            riffPipeline = new RiffPipeline(userFunction, destinationStream, {objectMode: true});
+            fixedSource.pipe(riffPipeline);
             setTimeout(() => {
                 fixedSource.end();
             }, 100);
@@ -126,8 +126,8 @@ describe('riff facade =>', () => {
                     done(new Error('the destination stream should end only when all data has been received'));
                 }
             });
-            riffFacade = new RiffFacade(userFunction, destinationStream, {objectMode: true});
-            fixedSource.pipe(riffFacade);
+            riffPipeline = new RiffPipeline(userFunction, destinationStream, {objectMode: true});
+            fixedSource.pipe(riffPipeline);
         })
     });
 
@@ -137,12 +137,12 @@ describe('riff facade =>', () => {
         });
 
         it('emits an error', (done) => {
-            riffFacade.on('error', (err) => {
+            riffPipeline.on('error', (err) => {
                 expect(err.type).toEqual('error-streaming-input-type-invalid');
                 expect(err.cause).toEqual('invalid input type [object String]');
                 done();
             });
-            fixedSource.pipe(riffFacade);
+            fixedSource.pipe(riffPipeline);
         });
     });
 
@@ -152,12 +152,12 @@ describe('riff facade =>', () => {
         });
 
         it('emits an error', (done) => {
-            riffFacade.on('error', (err) => {
+            riffPipeline.on('error', (err) => {
                 expect(err.type).toEqual('error-streaming-input-type-unsupported');
                 expect(err.cause).toEqual('input is neither a start nor a data signal');
                 done();
             });
-            fixedSource.pipe(riffFacade);
+            fixedSource.pipe(riffPipeline);
         });
     });
 
@@ -173,7 +173,7 @@ describe('riff facade =>', () => {
             destinationStream.on('data', () => {
                 done(new Error('should not receive any data'));
             });
-            riffFacade.on('error', (err) => {
+            riffPipeline.on('error', (err) => {
                 expect(err.type).toEqual('error-streaming-too-many-starts');
                 expect(err.cause).toEqual(
                     'start signal has already been received. ' +
@@ -181,7 +181,7 @@ describe('riff facade =>', () => {
                 );
                 done();
             });
-            fixedSource.pipe(riffFacade);
+            fixedSource.pipe(riffPipeline);
         })
     });
 
@@ -196,14 +196,14 @@ describe('riff facade =>', () => {
             destinationStream.on('data', () => {
                 done(new Error('should not receive any data'));
             });
-            riffFacade.on('error', (err) => {
+            riffPipeline.on('error', (err) => {
                 expect(err.type).toEqual('error-streaming-invalid-output-count');
                 expect(err.cause).toEqual(
                     'invalid output count 3: function has only 2 parameter(s)'
                 );
                 done();
             });
-            fixedSource.pipe(riffFacade);
+            fixedSource.pipe(riffPipeline);
         })
     });
 
@@ -218,7 +218,7 @@ describe('riff facade =>', () => {
             destinationStream.on('data', () => {
                 done(new Error('should not receive any data'));
             });
-            riffFacade.on('error', (err) => {
+            riffPipeline.on('error', (err) => {
                 expect(err.type).toEqual('error-streaming-missing-start');
                 expect(err.cause).toEqual(
                     'start signal has not been received or processed yet. ' +
@@ -226,7 +226,7 @@ describe('riff facade =>', () => {
                 );
                 done();
             });
-            fixedSource.pipe(riffFacade);
+            fixedSource.pipe(riffPipeline);
         })
     });
 });
