@@ -5,7 +5,7 @@ const grpc = require('grpc');
 
 const userFunctionUri = process.env.FUNCTION_URI;
 if (typeof userFunctionUri === 'undefined' || userFunctionUri === '') {
-    throw 'FUNCTION_URI envvar not set or unset. Aborting.'
+    throw 'FUNCTION_URI envvar not set or empty. Aborting.'
 }
 const port = process.env.HTTP_PORT || process.env.PORT || '8081';
 const userFunction = (fn => {
