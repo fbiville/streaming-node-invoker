@@ -3,21 +3,16 @@ const InputUnmarshaller = require('../lib/input-unmarshaller');
 
 describe('input unmarshaller =>', () => {
     let unmarshaller;
-    let zeroIndexedInputs;
-    let nonZeroIndexedInputs;
+    let inputs;
     let unsupportedInputs;
     const expectedPayloads = ['aha', 'take me on'];
     const expectedPayloadCount = expectedPayloads.length;
 
     beforeEach(() => {
-        unmarshaller = new InputUnmarshaller(0, {objectMode: true});
-        zeroIndexedInputs = newFixedSource([
+        unmarshaller = new InputUnmarshaller({objectMode: true});
+        inputs = newFixedSource([
             newInputSignal(newInputFrame(0, 'text/plain', expectedPayloads[0])),
             newInputSignal(newInputFrame(0, 'text/plain', expectedPayloads[1])),
-        ]);
-        nonZeroIndexedInputs = newFixedSource([
-            newInputSignal(newInputFrame(2, 'text/plain', expectedPayloads[0])),
-            newInputSignal(newInputFrame(3, 'text/plain', expectedPayloads[1])),
         ]);
         unsupportedInputs = newFixedSource([
             newInputSignal(newInputFrame(0, 'application/x-doom', expectedPayloads[0]))
@@ -25,8 +20,7 @@ describe('input unmarshaller =>', () => {
     });
 
     afterEach(() => {
-        zeroIndexedInputs.destroy();
-        nonZeroIndexedInputs.destroy();
+        inputs.destroy();
         unsupportedInputs.destroy();
         unmarshaller.destroy();
     });
@@ -43,18 +37,7 @@ describe('input unmarshaller =>', () => {
             done();
         });
 
-        zeroIndexedInputs.pipe(unmarshaller);
-    });
-
-    it('discards the received input signals whose index are not matching', (done) => {
-        unmarshaller.on('data', () => {
-            done(new Error(`should not consume any elements`));
-        });
-        unmarshaller.on('end', () => {
-            done();
-        });
-
-        nonZeroIndexedInputs.pipe(unmarshaller);
+        inputs.pipe(unmarshaller);
     });
 
     it('fails unmarshalling inputs with unsupported content-type', (done) => {
