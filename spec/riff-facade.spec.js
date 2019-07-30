@@ -3,6 +3,7 @@ const {
     newFixedSource,
     newInputFrame,
     newInputSignal,
+    newMappingTransform,
     newOutputFrame,
     newOutputSignal,
     newStartFrame,
@@ -13,9 +14,7 @@ const RiffFacade = require('../lib/riff-facade');
 describe('riff facade =>', () => {
 
     const userFunction = (inputStream, outputStream) => {
-        inputStream.on('data', (arg) => {
-            outputStream.write(arg + 42);
-        });
+        inputStream.pipe(newMappingTransform((arg) => arg + 42)).pipe(outputStream);
     };
     let destinationStream;
     let riffFacade;
@@ -45,16 +44,14 @@ describe('riff facade =>', () => {
         });
 
         it('invokes the function and send the outputs', (done) => {
-            let outputReceived = false;
             riffFacade.on('error', (err) => {
                 done(err);
             });
+            let dataReceived = false;
             destinationStream.on('data', (chunk) => {
-                if (outputReceived) {
-                    done(new Error(`expected only 1 output, but also received ${chunk}`));
-                    return
+                if (dataReceived) {
+                    done(new Error('data already received'));
                 }
-                outputReceived = true;
                 expect(chunk).toEqual(
                     newOutputSignal(newOutputFrame(
                         0,
@@ -62,6 +59,9 @@ describe('riff facade =>', () => {
                         'the ultimate answer to life the universe and everything is: 42'
                     ))
                 );
+                dataReceived = true;
+            });
+            destinationStream.on('finish', () => {
                 done();
             });
             fixedSource.pipe(riffFacade);
