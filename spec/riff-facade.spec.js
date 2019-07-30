@@ -93,6 +93,44 @@ describe('riff facade =>', () => {
         })
     });
 
+    describe('with an immediately closing output stream =>', () => {
+        const data = ['1', '4', '9'];
+        beforeEach(() => {
+            fixedSource = newFixedSource([
+                newStartSignal(newStartFrame(['text/plain', 'text/plain'])),
+                ...(data.map((payload) => newInputSignal(newInputFrame(0, 'text/plain', payload))))
+            ]);
+        });
+
+        it('the other output stream can still emit to the destination stream', (done) => {
+            const userFunction = (inputStream, outputStream1, outputStream2) => {
+                outputStream1.end();
+                inputStream.pipe(outputStream2);
+            };
+
+            let allDataReceived = false;
+            let receivedOutputSignalCount = 0;
+            destinationStream.on('data', (outputSignal) => {
+                if (receivedOutputSignalCount >= data.length) {
+                    done(new Error(`expected to receive only ${data.length} element(s)`))
+                }
+                expect(outputSignal).toEqual(newOutputSignal(newOutputFrame(1, 'text/plain', data[receivedOutputSignalCount++])));
+                if (receivedOutputSignalCount === data.length) {
+                    allDataReceived = true;
+                }
+            });
+            destinationStream.on('finish', () => {
+                if (allDataReceived) {
+                    done();
+                } else {
+                    done(new Error('the destination stream should end only when all data has been received'));
+                }
+            });
+            riffFacade = new RiffFacade(userFunction, destinationStream, {objectMode: true});
+            fixedSource.pipe(riffFacade);
+        })
+    });
+
     describe('with badly-typed inputs =>', () => {
         beforeEach(() => {
             fixedSource = newFixedSource(["not a signal"]);
