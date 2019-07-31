@@ -1,3 +1,4 @@
+const StreamingPipeline = require('../lib/streaming-pipeline');
 const {PassThrough} = require('stream');
 const {
     newFixedSource,
@@ -9,25 +10,24 @@ const {
     newStartFrame,
     newStartSignal
 } = require('./helpers/factories');
-const RiffPipeline = require('../lib/riff-pipeline');
 
-describe('riff pipeline =>', () => {
+describe('streaming pipeline =>', () => {
 
     const userFunction = (inputStream, outputStream) => {
         inputStream.pipe(newMappingTransform((arg) => arg + 42)).pipe(outputStream);
     };
     let destinationStream;
-    let riffPipeline;
+    let streamingPipeline;
     let fixedSource;
 
     beforeEach(() => {
         destinationStream = new PassThrough({objectMode: true});
-        riffPipeline = new RiffPipeline(userFunction, destinationStream, {objectMode: true});
+        streamingPipeline = new StreamingPipeline(userFunction, destinationStream, {objectMode: true});
     });
 
     afterEach(() => {
         fixedSource.destroy();
-        riffPipeline.destroy();
+        streamingPipeline.destroy();
         destinationStream.destroy();
     });
 
@@ -44,7 +44,7 @@ describe('riff pipeline =>', () => {
         });
 
         it('invokes the function and send the outputs', (done) => {
-            riffPipeline.on('error', (err) => {
+            streamingPipeline.on('error', (err) => {
                 done(err);
             });
             let dataReceived = false;
@@ -64,7 +64,7 @@ describe('riff pipeline =>', () => {
             destinationStream.on('finish', () => {
                 done();
             });
-            fixedSource.pipe(riffPipeline);
+            fixedSource.pipe(streamingPipeline);
         });
     });
 
@@ -84,8 +84,8 @@ describe('riff pipeline =>', () => {
                 })
             };
 
-            riffPipeline = new RiffPipeline(userFunction, destinationStream, {objectMode: true});
-            fixedSource.pipe(riffPipeline);
+            streamingPipeline = new StreamingPipeline(userFunction, destinationStream, {objectMode: true});
+            fixedSource.pipe(streamingPipeline);
             setTimeout(() => {
                 fixedSource.end();
             }, 100);
@@ -126,8 +126,8 @@ describe('riff pipeline =>', () => {
                     done(new Error('the destination stream should end only when all data has been received'));
                 }
             });
-            riffPipeline = new RiffPipeline(userFunction, destinationStream, {objectMode: true});
-            fixedSource.pipe(riffPipeline);
+            streamingPipeline = new StreamingPipeline(userFunction, destinationStream, {objectMode: true});
+            fixedSource.pipe(streamingPipeline);
         })
     });
 
@@ -137,12 +137,12 @@ describe('riff pipeline =>', () => {
         });
 
         it('emits an error', (done) => {
-            riffPipeline.on('error', (err) => {
+            streamingPipeline.on('error', (err) => {
                 expect(err.type).toEqual('error-streaming-input-type-invalid');
                 expect(err.cause).toEqual('invalid input type [object String]');
                 done();
             });
-            fixedSource.pipe(riffPipeline);
+            fixedSource.pipe(streamingPipeline);
         });
     });
 
@@ -152,12 +152,12 @@ describe('riff pipeline =>', () => {
         });
 
         it('emits an error', (done) => {
-            riffPipeline.on('error', (err) => {
+            streamingPipeline.on('error', (err) => {
                 expect(err.type).toEqual('error-streaming-input-type-unsupported');
                 expect(err.cause).toEqual('input is neither a start nor a data signal');
                 done();
             });
-            fixedSource.pipe(riffPipeline);
+            fixedSource.pipe(streamingPipeline);
         });
     });
 
@@ -173,7 +173,7 @@ describe('riff pipeline =>', () => {
             destinationStream.on('data', () => {
                 done(new Error('should not receive any data'));
             });
-            riffPipeline.on('error', (err) => {
+            streamingPipeline.on('error', (err) => {
                 expect(err.type).toEqual('error-streaming-too-many-starts');
                 expect(err.cause).toEqual(
                     'start signal has already been received. ' +
@@ -181,7 +181,7 @@ describe('riff pipeline =>', () => {
                 );
                 done();
             });
-            fixedSource.pipe(riffPipeline);
+            fixedSource.pipe(streamingPipeline);
         })
     });
 
@@ -196,14 +196,14 @@ describe('riff pipeline =>', () => {
             destinationStream.on('data', () => {
                 done(new Error('should not receive any data'));
             });
-            riffPipeline.on('error', (err) => {
+            streamingPipeline.on('error', (err) => {
                 expect(err.type).toEqual('error-streaming-invalid-output-count');
                 expect(err.cause).toEqual(
                     'invalid output count 3: function has only 2 parameter(s)'
                 );
                 done();
             });
-            fixedSource.pipe(riffPipeline);
+            fixedSource.pipe(streamingPipeline);
         })
     });
 
@@ -218,7 +218,7 @@ describe('riff pipeline =>', () => {
             destinationStream.on('data', () => {
                 done(new Error('should not receive any data'));
             });
-            riffPipeline.on('error', (err) => {
+            streamingPipeline.on('error', (err) => {
                 expect(err.type).toEqual('error-streaming-missing-start');
                 expect(err.cause).toEqual(
                     'start signal has not been received or processed yet. ' +
@@ -226,7 +226,7 @@ describe('riff pipeline =>', () => {
                 );
                 done();
             });
-            fixedSource.pipe(riffPipeline);
+            fixedSource.pipe(streamingPipeline);
         })
     });
 });

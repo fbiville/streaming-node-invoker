@@ -1,5 +1,5 @@
+const StreamingPipeline = require('./lib/streaming-pipeline');
 const services = require('./codegen/proto/riff-rpc_grpc_pb');
-const RiffPipeline = require('./lib/riff-pipeline');
 const logger = require('util').debuglog('riff');
 const grpc = require('grpc');
 
@@ -19,8 +19,8 @@ const userFunction = (fn => {
 
 const invoke = (call) => {
     logger('New invocation started');
-    const riffPipeline = new RiffPipeline(userFunction, call, {objectMode: true});
-    call.pipe(riffPipeline);
+    const streamingPipeline = new StreamingPipeline(userFunction, call, {objectMode: true});
+    call.pipe(streamingPipeline);
 };
 
 const main = () => {
