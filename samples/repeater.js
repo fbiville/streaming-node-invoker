@@ -18,3 +18,4 @@ module.exports =
             repeated_letters.end();
         });
     };
+module.exports.$interactionModel = 'node-streams';

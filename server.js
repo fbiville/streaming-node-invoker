@@ -1,13 +1,12 @@
-const StreamingPipeline = require('./lib/streaming-pipeline');
 const services = require('./codegen/proto/riff-rpc_grpc_pb');
 const logger = require('util').debuglog('riff');
+const interactionModels = require('./lib/interaction-models');
 const grpc = require('grpc');
 
 const userFunctionUri = process.env.FUNCTION_URI;
 if (typeof userFunctionUri === 'undefined' || userFunctionUri === '') {
     throw 'FUNCTION_URI envvar not set or empty. Aborting.'
 }
-const port = process.env.HTTP_PORT || process.env.PORT || '8081';
 const userFunction = (fn => {
     if (fn.__esModule && typeof fn.default === 'function') {
         // transpiled ES Module interop
@@ -16,11 +15,14 @@ const userFunction = (fn => {
     }
     return fn;
 })(require(userFunctionUri));
+const interactionModel = userFunction['$interactionModel'] || 'request-reply';
+const port = process.env.HTTP_PORT || process.env.PORT || '8081';
+const pipelineConstructor = interactionModels[interactionModel];
 
 const invoke = (call) => {
     logger('New invocation started');
-    const streamingPipeline = new StreamingPipeline(userFunction, call, {objectMode: true});
-    call.pipe(streamingPipeline);
+    const pipeline = new pipelineConstructor(userFunction, call, {objectMode: true});
+    call.pipe(pipeline);
 };
 
 const main = () => {

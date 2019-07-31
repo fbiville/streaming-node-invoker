@@ -1,6 +1,6 @@
 require('../../codegen/proto/riff-rpc_grpc_pb');
 const {TextEncoder} = require('util');
-const MappingTransform = require('./mapping-transform');
+const MappingTransform = require('../../lib/mapping-transform');
 const FixedSource = require('./fixed-source');
 
 const textEncoder = new TextEncoder('utf-8');

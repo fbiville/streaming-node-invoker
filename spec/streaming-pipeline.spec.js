@@ -31,7 +31,7 @@ describe('streaming pipeline =>', () => {
         destinationStream.destroy();
     });
 
-    describe('with valid inputs', () => {
+    describe('with valid input signals', () => {
         beforeEach(() => {
             fixedSource = newFixedSource([
                 newStartSignal(newStartFrame(['text/plain'])),
