@@ -12,9 +12,9 @@ const {
 
 describe('request-reply pipeline =>', () => {
 
-    describe('with a valid request-reply function => ', () => {
+    describe('with a valid request-reply function =>', () => {
 
-        const userFunction = (arg) => arg ** 2;
+        let userFunction = (arg) => arg ** 2;
         let destinationStream;
         let requestReplyPipeline;
         let fixedSource;
@@ -30,7 +30,7 @@ describe('request-reply pipeline =>', () => {
             destinationStream.destroy();
         });
 
-        describe('with valid input signals', () => {
+        describe('with valid input signals =>', () => {
             const data = [7, 11, 2];
             const result = data.map(userFunction);
             beforeEach(() => {
@@ -160,7 +160,115 @@ describe('request-reply pipeline =>', () => {
         });
     });
 
-    describe('with an invalid user function => ', () => {
+    describe('when facing errors =>', () => {
+
+        let userFunction;
+        let destinationStream;
+        let requestReplyPipeline;
+        let fixedSource;
+
+        beforeEach(() => {
+            destinationStream = new PassThrough({objectMode: true});
+        });
+
+        afterEach(() => {
+            requestReplyPipeline.destroy();
+            fixedSource.destroy();
+            destinationStream.destroy();
+        });
+
+        describe('when an invalid input cannot be unmarshalled =>', () => {
+            beforeEach(() => {
+                userFunction = (input) => {
+                    throw new Error(`error with ${input}`);
+                };
+                fixedSource = newFixedSource([
+                    newStartSignal(newStartFrame(['text/plain'])),
+                    newInputSignal(newInputFrame(0, 'application/json', "invalid JSON"))
+                ]);
+                requestReplyPipeline = new RequestReplyPipeline(userFunction, destinationStream, {objectMode: true});
+            });
+
+            it('ends the pipeline', (done) => {
+                destinationStream.on('data', () => {
+                    done(new Error('should not receive any data'));
+                });
+                destinationStream.on('finish', () => {
+                    done();
+                });
+                fixedSource.pipe(requestReplyPipeline);
+            });
+        });
+
+        describe('when a function throws =>', () => {
+            beforeEach(() => {
+                userFunction = (input) => {
+                    throw new Error(`error with ${input}`);
+                };
+                fixedSource = newFixedSource([newStartSignal(newStartFrame(['text/plain']))]);
+                requestReplyPipeline = new RequestReplyPipeline(userFunction, destinationStream, {objectMode: true});
+            });
+
+            it('ends the pipeline', (done) => {
+                destinationStream.on('data', () => {
+                    done(new Error('should not receive any data'));
+                });
+                destinationStream.on('finish', () => {
+                    done();
+                });
+                fixedSource.pipe(requestReplyPipeline);
+            });
+        });
+
+        describe('with an invalid output content-type =>', () => {
+            beforeEach(() => {
+                userFunction = (input) => {
+                    return input;
+                };
+                fixedSource = newFixedSource([
+                    newStartSignal(newStartFrame(['text/csv'])),
+                    newInputSignal(newInputFrame(0, 'text/plain', "nuff said"))
+                ]);
+                requestReplyPipeline = new RequestReplyPipeline(userFunction, destinationStream, {objectMode: true});
+            });
+
+            it('ends the pipeline', (done) => {
+                destinationStream.on('data', () => {
+                    done(new Error('should not receive any data'));
+                });
+                destinationStream.on('finish', () => {
+                    done();
+                });
+                fixedSource.pipe(requestReplyPipeline);
+            });
+        });
+
+        describe('with an invalid output =>', () => {
+            beforeEach(() => {
+                userFunction = (input) => {
+                    return Symbol(input);
+                };
+                fixedSource = newFixedSource([
+                    newStartSignal(newStartFrame(['application/json'])),
+                    newInputSignal(newInputFrame(0, 'text/plain', "nuff said"))
+                ]);
+                requestReplyPipeline = new RequestReplyPipeline(userFunction, destinationStream, {objectMode: true});
+            });
+
+            it('ends the pipeline', (done) => {
+                destinationStream.on('data', () => {
+                    done(new Error('should not receive any data'));
+                });
+                destinationStream.on('finish', () => {
+                    done();
+                });
+                fixedSource.pipe(requestReplyPipeline);
+            });
+        });
+    });
+
+    describe('with an invalid user function =>', () => {
+
         let destinationStream;
 
         beforeEach(() => {
@@ -177,9 +285,9 @@ describe('request-reply pipeline =>', () => {
                     throw `should not be called ${too} ${many} ${inputs}`;
                 }, destinationStream);
                 fail('constructor should throw')
-            } catch (error) {
-                expect(error.type).toEqual('error-request-reply-unsupported-function');
-                expect(error.cause).toEqual('unsupported function: ' +
+            } catch (err) {
+                expect(err.type).toEqual('error-request-reply-unsupported-function');
+                expect(err.cause).toEqual('unsupported function: ' +
                     'only functions with a single parameter are supported in request-reply mode ' +
                     '(found 3 parameter(s) instead)');
             }

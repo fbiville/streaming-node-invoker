@@ -5,6 +5,7 @@ describe('input unmarshaller =>', () => {
     let unmarshaller;
     let inputs;
     let unsupportedInputs;
+    let invalidInputs;
     const expectedPayloads = ['aha', 'take me on'];
     const expectedPayloadCount = expectedPayloads.length;
 
@@ -15,13 +16,17 @@ describe('input unmarshaller =>', () => {
             newInputSignal(newInputFrame(0, 'text/plain', expectedPayloads[1])),
         ]);
         unsupportedInputs = newFixedSource([
-            newInputSignal(newInputFrame(0, 'application/x-doom', expectedPayloads[0]))
+            newInputSignal(newInputFrame(0, 'application/x-doom', '???'))
+        ]);
+        invalidInputs = newFixedSource([
+            newInputSignal(newInputFrame(0, 'application/json', 'invalid JSON'))
         ]);
     });
 
     afterEach(() => {
         inputs.destroy();
         unsupportedInputs.destroy();
+        invalidInputs.destroy();
         unmarshaller.destroy();
     });
 
@@ -45,11 +50,33 @@ describe('input unmarshaller =>', () => {
             done(new Error(`should not consume any elements`));
         });
         unmarshaller.on('error', (err) => {
-            expect(err.type).toEqual('error-streaming-input-content-type-unsupported');
+            expect(err.type).toEqual('error-input-content-type-unsupported');
             expect(err.cause).toEqual('unsupported input #0\'s content-type application/x-doom');
             done();
         });
 
         unsupportedInputs.pipe(unmarshaller);
+    });
+
+    it('fails unmarshalling invalid inputs', (done) => {
+        let errored = false;
+        unmarshaller.on('data', () => {
+            done(new Error(`should not consume any elements`));
+        });
+        unmarshaller.on('error', (err) => {
+            expect(err.type).toEqual('error-input-invalid');
+            expect(err.cause.name).toEqual('SyntaxError');
+            expect(err.cause.message).toEqual('Unexpected token i in JSON at position 0');
+            errored = true;
+        });
+        unmarshaller.on('end', () => {
+            if (!errored) {
+                done(new Error('should have errored'))
+            } else {
+                done();
+            }
+        });
+
+        invalidInputs.pipe(unmarshaller);
     });
 });
