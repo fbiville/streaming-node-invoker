@@ -38,6 +38,11 @@ Output streams are [Writable streams](https://nodejs.org/api/stream.html#stream_
 The function **must** close the output streams when it is done emitting data 
 (if the output streams are [`pipe`](https://nodejs.org/api/stream.html#stream_readable_pipe_destination_options)'d from input streams, then this is automatically managed).
 
+## Supported invocations
+
+This invoker supports only streaming, and complies to [riff streaming protocol](https://github.com/projectriff/streaming-processor).
+However, it is possible to send HTTP requests and receive HTTP responses if you combine this invoker with the streaming HTTP adapter available [here](https://github.com/projectriff/streaming-http-adapter).
+
 ## Development
 
 ### Prereqs
