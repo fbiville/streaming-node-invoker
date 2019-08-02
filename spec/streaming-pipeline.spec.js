@@ -258,5 +258,7 @@ describe('streaming pipeline =>', () => {
             });
             fixedSource.pipe(streamingPipeline);
         })
-    })
+    });
+
+    // TODO: data error tests (input, function and output)
 });
