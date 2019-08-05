@@ -35,7 +35,7 @@ module.exports.$interactionModel = 'node-streams';
 Input streams are [Readable streams](https://nodejs.org/api/stream.html#stream_readable_streams).
 Output streams are [Writable streams](https://nodejs.org/api/stream.html#stream_class_stream_readable).
 
-The function **must** close the output streams when it is done emitting data 
+The function **must** end the output streams when it is done emitting data 
 (if the output streams are [`pipe`](https://nodejs.org/api/stream.html#stream_readable_pipe_destination_options)'d from input streams, then this is automatically managed).
 
 ## Lifecycle
