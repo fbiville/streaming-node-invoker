@@ -45,7 +45,7 @@ describe('input unmarshaller =>', () => {
         inputs.pipe(unmarshaller);
     });
 
-    it('fails unmarshalling inputs with unsupported content-type', (done) => {
+    it('emits an error when unmarshalling inputs with unsupported content-type', (done) => {
         unmarshaller.on('data', () => {
             done(new Error(`should not consume any elements`));
         });
@@ -58,8 +58,7 @@ describe('input unmarshaller =>', () => {
         unsupportedInputs.pipe(unmarshaller);
     });
 
-    it('fails unmarshalling invalid inputs', (done) => {
-        let errored = false;
+    it('emits an error when unmarshalling invalid inputs', (done) => {
         unmarshaller.on('data', () => {
             done(new Error(`should not consume any elements`));
         });
@@ -67,14 +66,7 @@ describe('input unmarshaller =>', () => {
             expect(err.type).toEqual('error-input-invalid');
             expect(err.cause.name).toEqual('SyntaxError');
             expect(err.cause.message).toEqual('Unexpected token i in JSON at position 0');
-            errored = true;
-        });
-        unmarshaller.on('end', () => {
-            if (!errored) {
-                done(new Error('should have errored'))
-            } else {
-                done();
-            }
+            done();
         });
 
         invalidInputs.pipe(unmarshaller);

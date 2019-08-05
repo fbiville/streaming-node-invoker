@@ -26,12 +26,11 @@ describe('output marshaller =>', () => {
         it('marshalls the given outputs', (done) => {
             let index = 0;
             marshaller.on('data', (chunk) => {
-                if (index === outputPayloads.length) {
-                    done(new Error(`should not consume more than ${expectedPayloadCount} elements, about to consume ${index}th one`));
-                }
-                const expectedFrame = newOutputFrame(expectedIndex, expectedContentType, expectedResults[index++]);
+                expect(index).toBeLessThan(outputPayloads.length, `should not consume more than ${expectedPayloadCount} elements, about to consume ${index}th one`);
+                const expectedFrame = newOutputFrame(expectedIndex, expectedContentType, expectedResults[index]);
                 const expectedSignal = newOutputSignal(expectedFrame);
                 expect(chunk).toEqual(expectedSignal);
+                index++;
             });
             marshaller.on('end', () => {
                 done();
@@ -57,7 +56,6 @@ describe('output marshaller =>', () => {
         });
 
         it('emits an error', (done) => {
-            let errored = false;
             marshaller.on('data', () => {
                 done(new Error('should not receive data'));
             });
@@ -65,14 +63,7 @@ describe('output marshaller =>', () => {
                 expect(err.type).toEqual('error-output-invalid');
                 expect(err.cause.name).toEqual('Error');
                 expect(err.cause.message).toEqual('Could not marshall Symbol(42) to JSON');
-                errored = true;
-            });
-            marshaller.on('end', () => {
-                if (!errored) {
-                    done(new Error('should have errored'));
-                } else {
-                    done();
-                }
+                done();
             });
 
             outputPayloadSource.pipe(marshaller);

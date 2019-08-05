@@ -24,10 +24,7 @@ describe('function promoter =>', () => {
     it('promotes request-reply functions to streaming', (done) => {
         let index = 0;
         streamingOutput.on('data', (chunk) => {
-            if (index === expectedResults.length) {
-                done(new Error(`expected only ${expectedResults.length} element(s)`));
-                return
-            }
+            expect(index).toBeLessThan(expectedResults.length, `expected only ${expectedResults.length} element(s)`);
             expect(chunk).toEqual(expectedResults[index++])
         });
         streamingOutput.on('end', () => {
@@ -41,10 +38,7 @@ describe('function promoter =>', () => {
     it('returns streaming functions as-is', (done) => {
         let index = 0;
         streamingOutput.on('data', (chunk) => {
-            if (index === expectedResults.length) {
-                done(new Error(`expected only ${expectedResults.length} element(s)`));
-                return
-            }
+            expect(index).toBeLessThan(expectedResults.length, `expected only ${expectedResults.length} element(s)`);
             expect(chunk).toEqual(expectedResults[index++])
         });
         streamingOutput.on('end', () => {
