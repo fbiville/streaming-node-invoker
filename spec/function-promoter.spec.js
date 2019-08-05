@@ -58,4 +58,26 @@ describe('function promoter =>', () => {
             expect(err.cause).toEqual('Request-reply function must have exactly 1 argument, 2 found')
         }
     });
+
+    it('preserves lifecycle hooks if any are set', () => {
+        const someFunction = require('./helpers/lifecycle/simple-lifecycle-request-reply-function');
+
+        const promotedFunction = promoteFunction(someFunction);
+
+        expect(someFunction['$init']).toBeTruthy();
+        expect(someFunction['$destroy']).toBeTruthy();
+        expect(promotedFunction['$init']).toEqual(someFunction['$init']);
+        expect(promotedFunction['$destroy']).toEqual(someFunction['$destroy']);
+    });
+
+    it('discards invalid hooks if any are set', () => {
+        const someFunction = require('./helpers/lifecycle/invalid-lifecycle-function');
+
+        const promotedFunction = promoteFunction(someFunction);
+
+        expect(someFunction['$init']).toBeTruthy();
+        expect(someFunction['$destroy']).toBeTruthy();
+        expect(promotedFunction['$init']).toBeUndefined();
+        expect(promotedFunction['$destroy']).toBeUndefined();
+    });
 });
