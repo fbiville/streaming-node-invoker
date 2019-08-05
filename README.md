@@ -71,7 +71,7 @@ The lifecycle methods are optional, and should only be implemented when needed.
 The hooks may be either traditional or async functions.
 Lifecycle functions have up to 10 seconds to complete their work, or the function invoker will abort.
 
-## Supported invocations
+## Supported protocols
 
 This invoker supports only streaming, and complies to [riff streaming protocol](https://github.com/projectriff/streaming-processor).
 However, it is possible to send HTTP requests and receive HTTP responses if you combine this invoker with the streaming HTTP adapter available [here](https://github.com/projectriff/streaming-http-adapter).
