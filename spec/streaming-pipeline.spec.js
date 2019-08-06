@@ -271,8 +271,7 @@ describe('streaming pipeline =>', () => {
         beforeEach(() => {
             streamingPipeline = new StreamingPipeline(userFunction, destinationStream, {objectMode: true});
             fixedSource = newFixedSource([
-                newStartSignal(newStartFrame(['text/plain'])),
-                newInputSignal(newInputFrame(0, 'application/json', '"42"'))
+                newStartSignal(newStartFrame(['text/plain']))
             ]);
         });
 
