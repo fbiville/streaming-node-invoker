@@ -49,16 +49,6 @@ describe('function promoter =>', () => {
         result(source, streamingOutput);
     });
 
-    it('rejects invalid request-reply functions', () => {
-        try {
-            promoteFunction((x, y) => x + y);
-            fail('should fail')
-        } catch (err) {
-            expect(err.type).toEqual('error-promoting-function');
-            expect(err.cause).toEqual('Request-reply function must have exactly 1 argument, 2 found')
-        }
-    });
-
     it('preserves lifecycle hooks if any are set', () => {
         const someFunction = require('./helpers/lifecycle/simple-lifecycle-request-reply-function');
 
