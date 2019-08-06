@@ -1,0 +1,12 @@
+{
+  "name": "repeater",
+  "version": "1.0.0",
+  "description": "repeats specified word a specified number of times",
+  "main": "lib/repeater.js",
+  "author": "Florent Biville <fbiville@pivotal.io>",
+  "license": "Apache-2.0",
+  "private": false,
+  "dependencies": {
+    "highland": "^2.13.5"
+  }
+}

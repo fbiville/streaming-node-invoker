@@ -1,0 +1,8 @@
+= repeater
+
+[horizontal]
+*Invoker*:: Node
+*Function*:: link:lib/repeater.js[repeater.js]
+*Inputs*:: word, repeat_count
+*Outputs*:: repeated_words
+

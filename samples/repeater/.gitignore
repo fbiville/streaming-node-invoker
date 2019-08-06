@@ -1,0 +1,6 @@
+/*
+!.gitignore
+!/lib
+!package.json
+!yarn.lock
+!README.*
