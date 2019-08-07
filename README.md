@@ -26,7 +26,7 @@ module.exports.$interactionModel = 'request-reply';
 
 Streaming functions must comply to the following signature:
 ```js
-module.exports = (inputStream1, inputStream2, [...], inputStreamN, outputStream1, [...], outputStreamM) {
+module.exports = (inputStream1, inputStream2, /*[...], */inputStreamN, outputStream1, /*[...], */outputStreamM) => {
     // do something
 }
 module.exports.$interactionModel = 'node-streams';
@@ -35,7 +35,7 @@ module.exports.$interactionModel = 'node-streams';
 Input streams are [Readable streams](https://nodejs.org/api/stream.html#stream_readable_streams).
 Output streams are [Writable streams](https://nodejs.org/api/stream.html#stream_class_stream_readable).
 
-The function **must** end the output streams when it is done emitting data 
+The function **must** end the output streams when it is done emitting data or when an error occurs
 (if the output streams are [`pipe`](https://nodejs.org/api/stream.html#stream_readable_pipe_destination_options)'d from input streams, then this is automatically managed).
 
 ## Lifecycle
