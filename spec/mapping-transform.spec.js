@@ -1,22 +1,55 @@
 const MappingTransform = require('../lib/mapping-transform');
 
-describe('MappingTransform', () => {
+describe('MappingTransform =>', () => {
 
     let mappingTransform;
-
-    beforeEach(() => {
-        mappingTransform = new MappingTransform((x) => x.foo(), {objectMode: true});
-    });
 
     afterEach(() => {
         mappingTransform.destroy();
     });
 
-    it('promotes non-streaming functions by mapping them', (done) => {
-        mappingTransform.on('data', (chunk) => {
-            expect(chunk).toEqual(42);
-            done();
+    describe('when dealing with non-streaming synchronous functions =>', () => {
+        beforeEach(() => {
+            const synchronousFunction = (x) => x.foo();
+            mappingTransform = new MappingTransform(synchronousFunction, {objectMode: true});
         });
-        mappingTransform.write({foo: () => 42});
+
+        it('maps them to streaming transform', (done) => {
+            mappingTransform.on('data', (chunk) => {
+                expect(chunk).toEqual(42);
+                done();
+            });
+            mappingTransform.write({foo: () => 42});
+        });
+    });
+
+    describe('when dealing with non-streaming asynchronous functions =>', () => {
+        beforeEach(() => {
+            const asynchronousFunction = async (x) => x.foo();
+            mappingTransform = new MappingTransform(asynchronousFunction, {objectMode: true});
+        });
+
+        it('maps them to streaming transform', (done) => {
+            mappingTransform.on('data', (chunk) => {
+                expect(chunk).toEqual(42);
+                done();
+            });
+            mappingTransform.write({foo: () => 42});
+        });
+    });
+
+    describe('when dealing with non-streaming promise-based functions =>', () => {
+        beforeEach(() => {
+            const asynchronousFunction = (x) => Promise.resolve(x.foo());
+            mappingTransform = new MappingTransform(asynchronousFunction, {objectMode: true});
+        });
+
+        it('maps them to streaming transform', (done) => {
+            mappingTransform.on('data', (chunk) => {
+                expect(chunk).toEqual(42);
+                done();
+            });
+            mappingTransform.write({foo: () => 42});
+        });
     });
 });

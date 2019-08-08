@@ -12,13 +12,23 @@ and invokes functions accordinly.
 
 Non-streaming functions, more specifically "request-reply" functions, such as:
 ```js
-module.exports = (x) => x**2;
+module.exports = (x) => x ** 2;
 ```
 will be automatically promoted to streaming functions via the equivalent of the `map` operator.
 
-Note that the interaction model can be explicitly advertised, albeit this is not necessary:
+Request-reply functions can also be asynchronous:
 ```js
-module.exports = (x) => x**2;
+module.exports = async x => x ** 2;
+```
+
+or return a Promise:
+```js
+module.exports = x => Promise.resolve(x ** 2);
+```
+
+Finally, note that the interaction model can be explicitly advertised, albeit this is not necessary:
+```js
+module.exports = (x) => x ** 2;
 module.exports.$interactionModel = 'request-reply';
 ```
 
@@ -43,8 +53,8 @@ The function **must** end the output streams when it is done emitting data or wh
 Functions that communicate with external services, like a database, can use the `$init` and `$destroy` lifecycle hooks on the function.
 These methods are called once per **function invocation**.
 
-The `$init` method is guarenteed to finish before the main function is invoked.
-The `$destroy` method is guarenteed to be invoked after all of the main functions are finsished.
+The `$init` method is guaranteed to finish before the main function is invoked.
+The `$destroy` method is guaranteed to be invoked after all of the main functions are finished.
 
 ```js
 let client;
@@ -69,7 +79,7 @@ module.exports.$destroy = async () => {
 
 The lifecycle methods are optional, and should only be implemented when needed.
 The hooks may be either traditional or async functions.
-Lifecycle functions have up to 10 seconds to complete their work, or the function invoker will abort.
+Lifecycle functions have up to **10 seconds** to complete their work, or the function invoker will abort.
 
 ## Supported protocols
 
