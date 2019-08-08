@@ -4,4 +4,5 @@
 *Invoker*:: Node
 *Function*:: link:lib/greeter.ts[greeter.ts]
 *Input*:: greeter
+*Output*:: greet string
 

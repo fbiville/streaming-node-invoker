@@ -1,4 +1,4 @@
-# Node function invoker for riff
+# Node Function Invoker [![Build Status](https://travis-ci.com/projectriff/node-function-invoker.svg?branch=master)](https://travis-ci.com/projectriff/node-function-invoker) [![Greenkeeper badge](https://badges.greenkeeper.io/projectriff/node-function-invoker.svg)](https://greenkeeper.io/)
 
 ## Purpose
 
@@ -18,12 +18,12 @@ will be automatically promoted to streaming functions via the equivalent of the 
 
 Request-reply functions can also be asynchronous:
 ```js
-module.exports = async x => x ** 2;
+module.exports = async (x) => x ** 2;
 ```
 
 or return a Promise:
 ```js
-module.exports = x => Promise.resolve(x ** 2);
+module.exports = (x) => Promise.resolve(x ** 2);
 ```
 
 Finally, note that the interaction model can be explicitly advertised, albeit this is not necessary:
@@ -41,12 +41,15 @@ module.exports = (inputStream1, inputStream2, /*[...], */inputStreamN, outputStr
 }
 module.exports.$interactionModel = 'node-streams';
 ```
+The interaction mode is **mandatory** in this case.
 
 Input streams are [Readable streams](https://nodejs.org/api/stream.html#stream_readable_streams).
+
 Output streams are [Writable streams](https://nodejs.org/api/stream.html#stream_class_stream_readable).
 
 The function **must** end the output streams when it is done emitting data or when an error occurs
-(if the output streams are [`pipe`](https://nodejs.org/api/stream.html#stream_readable_pipe_destination_options)'d from input streams, then this is automatically managed).
+(if the output streams are [`pipe`](https://nodejs.org/api/stream.html#stream_readable_pipe_destination_options)'d from input streams, 
+then this is automatically managed by this invoker).
 
 ## Lifecycle
 
@@ -105,18 +108,21 @@ However, it is possible to send HTTP requests and receive HTTP responses if you 
 1. Set up Liiklus (`kubectl apply` the file `liiklus.yaml` included in the [streaming processor project](https://github.com/projectriff/streaming-processor)).
 1. Set up the Kafka Gateway by following these [instructions](https://github.com/projectriff/kafka-gateway).
 
-### End-to-end run
+### End-to-end local run
 
-1. Run Liiklus producers and consumers with this [project](https://github.com/projectriff-samples/liiklus-client).
-1. Run this invoker: `FUNCTION_URI='./samples/repeater' yarn start`
-1. Run the [processor](https://github.com/projectriff/streaming-processor) with the appropriate parameters.
-1. Start sending data via the Liiklus producers.
+ -  Run Liiklus producers and consumers with this [project](https://github.com/projectriff-samples/liiklus-client).
+ - Run this invoker:
+```shell script
+ $ FUNCTION_URI='./samples/streaming-repeater' yarn start
+```
+ - Run the [processor](https://github.com/projectriff/streaming-processor) with the appropriate parameters.
+ - Start sending data via the Liiklus producers.
 
-### Invoker debug run
+### Invoker local debug run
 
-Execute the following:
+Execute the following and enjoy some logs:
 
 ```shell script
- $ FUNCTION_URI='./samples/repeater' NODE_DEBUG='riff' yarn start
+ $ FUNCTION_URI=./samples/streaming-repeater NODE_DEBUG='riff' yarn start
 ```
 
