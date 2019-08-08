@@ -1,6 +1,6 @@
 {
-  "name": "streaming-node-invoker",
-  "version": "0.0.1",
+  "name": "@projectriff/node-function-invoker",
+  "version": "0.2.0-snapshot",
   "description": "riff invoker for Node functions",
   "main": "server.js",
   "repository": "git@github.com:fbiville/streaming-node-invoker.git",
